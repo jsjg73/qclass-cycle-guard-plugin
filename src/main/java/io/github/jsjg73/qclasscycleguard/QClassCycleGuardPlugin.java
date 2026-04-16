@@ -141,10 +141,7 @@ public class QClassCycleGuardPlugin implements Plugin<Project> {
         List<File> qDirs = new ArrayList<>();
 
         for (String path : Q_CLASS_PATHS) {
-            File dir = new File(project.getProjectDir(), path);
-            if (dir.exists()) {
-                qDirs.add(dir);
-            }
+            qDirs.add(new File(project.getProjectDir(), path));
         }
 
         return qDirs;
