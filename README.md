@@ -1,6 +1,6 @@
 # qclass-cycle-guard-plugin
 
-A Gradle plugin that detects cyclic dependencies between QueryDSL Q-classes and generates pre-initialization code to prevent `<clinit>` deadlocks.
+A Gradle plugin that detects cyclic dependencies between QueryDSL Q-classes and generates `META-INF/cyclic-qclasses.txt` to expose them at runtime.
 
 ## Problem
 
@@ -11,7 +11,7 @@ QueryDSL generates Q-classes with static fields referencing other Q-classes. Whe
 This plugin runs at **build time** to:
 1. Scan generated Q-class files and build a dependency graph
 2. Detect cycles using Tarjan's Strongly Connected Components algorithm
-3. Generate a `QClassInitializer` class that pre-loads cyclic Q-classes on the main thread
+3. Write `META-INF/cyclic-qclasses.txt` listing all cyclic Q-class FQCNs for runtime discovery
 
 ## Quick Start
 
@@ -37,11 +37,7 @@ pluginManagement {
 **build.gradle**
 ```groovy
 plugins {
-    id 'io.github.jsjg73.qclass-cycle-guard' version 'v0.1.0'
-}
-
-qclassCycleGuard {
-    configPackage = 'com.example.config'
+    id 'io.github.jsjg73.qclass-cycle-guard' version 'v0.2.0'
 }
 ```
 
@@ -51,31 +47,27 @@ qclassCycleGuard {
 ./gradlew build
 ```
 
-The plugin automatically detects cycles and generates `QClassInitializer.java` in the specified package.
+The plugin automatically detects cycles and writes `META-INF/cyclic-qclasses.txt` into the build output.
 
-### 3. Use in application
+### 3. Use the resource at runtime
 
 ```java
-public static void main(String[] args) {
-    QClassInitializer.init();  // Pre-load cyclic Q-classes
-    SpringApplication.run(Application.class, args);
-}
-```
-
-## Configuration
-
-```groovy
-qclassCycleGuard {
-    configPackage = 'com.example.config'  // Package for generated QClassInitializer
-}
+Enumeration<URL> resources = getClass().getClassLoader()
+    .getResources("META-INF/cyclic-qclasses.txt");
+// read FQCNs and load them on a single thread before multi-threaded startup
 ```
 
 ## How It Works
 
 1. **Scan** — Parses Q-class source files to find `new QXxx()` constructor calls
 2. **Detect** — Builds a dependency graph and finds cycles via Tarjan's SCC algorithm
-3. **Generate** — Creates `QClassInitializer.java` with `Class.forName()` calls for all cyclic Q-classes
-4. **Resource** — Writes `META-INF/cyclic-qclasses.txt` for runtime discovery
+3. **Resource** — Writes `META-INF/cyclic-qclasses.txt` (one FQCN per line, alphabetically sorted)
+
+## Build Pipeline
+
+```
+compileJava → detectQClassCycle → copyQClassCycleGuardResource → classes
+```
 
 ## Compatibility
 

@@ -1,6 +1,6 @@
 # qclass-cycle-guard-plugin
 
-QueryDSL Q-class 간 순환 의존성을 감지하고, `<clinit>` 데드락을 방지하는 사전 초기화 코드를 생성하는 Gradle 플러그인입니다.
+QueryDSL Q-class 간 순환 의존성을 감지하고, `META-INF/cyclic-qclasses.txt`를 생성하여 런타임에 노출하는 Gradle 플러그인입니다.
 
 ## 문제
 
@@ -11,7 +11,7 @@ QueryDSL이 생성하는 Q-class는 다른 Q-class를 static 필드로 참조합
 이 플러그인은 **빌드 시점**에 다음을 수행합니다:
 1. 생성된 Q-class 파일을 스캔하여 의존성 그래프를 구성
 2. Tarjan의 강한 연결 요소(SCC) 알고리즘으로 사이클 감지
-3. 사이클에 포함된 Q-class를 메인 스레드에서 사전 로딩하는 `QClassInitializer` 클래스 생성
+3. 사이클에 포함된 Q-class의 FQCN 목록을 `META-INF/cyclic-qclasses.txt`에 기록
 
 ## 사용법
 
@@ -37,11 +37,7 @@ pluginManagement {
 **build.gradle**
 ```groovy
 plugins {
-    id 'io.github.jsjg73.qclass-cycle-guard' version 'v0.1.0'
-}
-
-qclassCycleGuard {
-    configPackage = 'com.example.config'
+    id 'io.github.jsjg73.qclass-cycle-guard' version 'v0.2.0'
 }
 ```
 
@@ -51,31 +47,27 @@ qclassCycleGuard {
 ./gradlew build
 ```
 
-플러그인이 자동으로 사이클을 감지하고 지정한 패키지에 `QClassInitializer.java`를 생성합니다.
+플러그인이 자동으로 사이클을 감지하고 `META-INF/cyclic-qclasses.txt`를 빌드 출력에 포함시킵니다.
 
-### 3. 애플리케이션에서 사용
+### 3. 런타임에서 리소스 활용
 
 ```java
-public static void main(String[] args) {
-    QClassInitializer.init();  // 사이클 Q-class 사전 로딩
-    SpringApplication.run(Application.class, args);
-}
-```
-
-## 설정
-
-```groovy
-qclassCycleGuard {
-    configPackage = 'com.example.config'  // QClassInitializer가 생성될 패키지
-}
+Enumeration<URL> resources = getClass().getClassLoader()
+    .getResources("META-INF/cyclic-qclasses.txt");
+// FQCN을 읽어 멀티스레드 시작 전에 단일 스레드에서 로딩
 ```
 
 ## 동작 방식
 
 1. **스캔** — Q-class 소스 파일을 파싱하여 `new QXxx()` 생성자 호출을 찾음
 2. **감지** — 의존성 그래프를 구성하고 Tarjan SCC 알고리즘으로 사이클 탐지
-3. **생성** — 사이클에 포함된 모든 Q-class에 대해 `Class.forName()` 호출이 포함된 `QClassInitializer.java` 생성
-4. **리소스** — 런타임 탐색용 `META-INF/cyclic-qclasses.txt` 작성
+3. **리소스** — `META-INF/cyclic-qclasses.txt` 작성 (FQCN 1줄씩, 알파벳 순 정렬)
+
+## 빌드 파이프라인
+
+```
+compileJava → detectQClassCycle → copyQClassCycleGuardResource → classes
+```
 
 ## 호환성
 
