@@ -30,7 +30,7 @@ test {
 gradlePlugin {
     plugins {
         qclassCycleGuard {
-            id = 'io.github.jsjg73.qclass-cycle-guard'
+            id = 'com.github.jsjg73.qclass-cycle-guard'
             implementationClass = 'io.github.jsjg73.qclasscycleguard.QClassCycleGuardPlugin'
         }
     }
