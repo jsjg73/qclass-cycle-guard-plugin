@@ -1,5 +1,8 @@
 package io.github.jsjg73.qclasscycleguard;
 
+import io.github.jsjg73.qclasscycleguard.core.CyclicQClassResourceWriter;
+import io.github.jsjg73.qclasscycleguard.core.QClassScanner;
+import io.github.jsjg73.qclasscycleguard.core.TarjanScc;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;

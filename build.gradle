@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.github.jsjg73'
-version = '0.2.0'
+version = '0.3.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -14,11 +14,14 @@ java {
 }
 
 repositories {
-    mavenLocal()
+    maven { url 'https://jitpack.io' }
     mavenCentral()
 }
 
 dependencies {
+    implementation 'com.github.jsjg73:qclass-cycle-guard-core:v0.3.0'
+
+    testImplementation gradleTestKit()
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testImplementation 'org.assertj:assertj-core:3.25.3'
 }

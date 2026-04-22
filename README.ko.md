@@ -30,7 +30,7 @@ pluginManagement {
 **build.gradle**
 ```groovy
 plugins {
-    id 'com.github.jsjg73.qclass-cycle-guard' version 'v0.2.0'
+    id 'com.github.jsjg73.qclass-cycle-guard' version 'v0.3.0'
 }
 ```
 
