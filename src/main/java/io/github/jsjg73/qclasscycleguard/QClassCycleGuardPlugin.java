@@ -21,7 +21,7 @@ import java.util.List;
  * <pre>
  * // build.gradle
  * plugins {
- *     id 'io.github.jsjg73.qclass-cycle-guard'
+ *     id 'com.github.jsjg73.qclass-cycle-guard-plugin'
  * }
  * </pre>
  *

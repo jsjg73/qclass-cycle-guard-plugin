@@ -25,7 +25,7 @@ compileJava → detectQClassCycle → copyQClassCycleGuardResource → classes
 
 ## Plugin ID
 
-`io.github.jsjg73.qclass-cycle-guard`
+`com.github.jsjg73.qclass-cycle-guard-plugin`
 
 ## 호환성
 
