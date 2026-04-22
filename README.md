@@ -24,13 +24,6 @@ pluginManagement {
         maven { url 'https://jitpack.io' }
         gradlePluginPortal()
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == 'com.github.jsjg73.qclass-cycle-guard-plugin') {
-                useModule("com.github.jsjg73:qclass-cycle-guard-plugin:${requested.version}")
-            }
-        }
-    }
 }
 ```
 
