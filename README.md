@@ -24,20 +24,13 @@ pluginManagement {
         maven { url 'https://jitpack.io' }
         gradlePluginPortal()
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == 'io.github.jsjg73.qclass-cycle-guard') {
-                useModule("com.github.jsjg73:qclass-cycle-guard-plugin:${requested.version}")
-            }
-        }
-    }
 }
 ```
 
 **build.gradle**
 ```groovy
 plugins {
-    id 'io.github.jsjg73.qclass-cycle-guard' version 'v0.2.0'
+    id 'com.github.jsjg73.qclass-cycle-guard' version 'v0.2.0'
 }
 ```
 
